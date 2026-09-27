@@ -1,0 +1,217 @@
+{
+  "stage": "modernize",
+  "target_runtime": "Python 3.12, current NumPy",
+  "source_dir": "legacy-target/src",
+  "modernized_dir": "modernized/src",
+  "files": {
+    "mnist_loader.py": {
+      "deprecated_before": 5,
+      "deprecated_after": 0,
+      "changes": [
+        {
+          "line_before": 13,
+          "construct": "import cPickle",
+          "fix": "import pickle",
+          "category": "removed_module"
+        },
+        {
+          "line_before": 42,
+          "construct": "gzip.open('../data/mnist.pkl.gz', 'rb')",
+          "fix": "gzip.open(os.path.join(os.path.dirname(__file__), '..', 'data', 'mnist.pkl.gz'), 'rb')",
+          "category": "path_portability",
+          "note": "Additional fix beyond analysis.md: hardcoded relative path replaced with __file__-relative path"
+        },
+        {
+          "line_before": 43,
+          "construct": "cPickle.load(f)",
+          "fix": "pickle.load(f, encoding='latin1')",
+          "category": "removed_module"
+        },
+        {
+          "line_before": 71,
+          "construct": "zip(training_inputs, training_results)",
+          "fix": "list(zip(training_inputs, training_results))",
+          "category": "zip_iterator"
+        },
+        {
+          "line_before": 73,
+          "construct": "zip(validation_inputs, va_d[1])",
+          "fix": "list(zip(validation_inputs, va_d[1]))",
+          "category": "zip_iterator"
+        },
+        {
+          "line_before": 75,
+          "construct": "zip(test_inputs, te_d[1])",
+          "fix": "list(zip(test_inputs, te_d[1]))",
+          "category": "zip_iterator"
+        }
+      ]
+    },
+    "network.py": {
+      "deprecated_before": 7,
+      "deprecated_after": 0,
+      "changes": [
+        {
+          "line_before": 56,
+          "construct": "xrange(epochs)",
+          "fix": "range(epochs)",
+          "category": "xrange"
+        },
+        {
+          "line_before": 60,
+          "construct": "xrange(0, n, mini_batch_size)",
+          "fix": "range(0, n, mini_batch_size)",
+          "category": "xrange"
+        },
+        {
+          "line_before": 64,
+          "construct": "print \"Epoch {0}: {1} / {2}\".format(...)",
+          "fix": "print(\"Epoch {0}: {1} / {2}\".format(...))",
+          "category": "print_statement"
+        },
+        {
+          "line_before": 67,
+          "construct": "print \"Epoch {0} complete\".format(j)",
+          "fix": "print(\"Epoch {0} complete\".format(j))",
+          "category": "print_statement"
+        },
+        {
+          "line_before": 80,
+          "construct": "eta/len(mini_batch) (weights update)",
+          "fix": "no code change — Python 3 / is true division by default",
+          "category": "integer_division",
+          "note": "Intentional behaviour change: Python 3 produces float result. Documented in task spec."
+        },
+        {
+          "line_before": 82,
+          "construct": "eta/len(mini_batch) (biases update)",
+          "fix": "no code change — Python 3 / is true division by default",
+          "category": "integer_division",
+          "note": "Intentional behaviour change: Python 3 produces float result. Documented in task spec."
+        },
+        {
+          "line_before": 112,
+          "construct": "xrange(2, self.num_layers)",
+          "fix": "range(2, self.num_layers)",
+          "category": "xrange"
+        },
+        {
+          "line_before": 130,
+          "construct": "\"\"\"...\\partial...\"\"\" (docstring with invalid escape)",
+          "fix": "r\"\"\"...\\partial...\"\"\"",
+          "category": "syntax_warning",
+          "note": "Additional fix: SyntaxWarning invalid escape sequence '\\p'. Not in analysis.md."
+        }
+      ]
+    },
+    "network2.py": {
+      "deprecated_before": 11,
+      "deprecated_after": 0,
+      "changes": [
+        {
+          "line_before": 159,
+          "construct": "xrange(epochs)",
+          "fix": "range(epochs)",
+          "category": "xrange"
+        },
+        {
+          "line_before": 163,
+          "construct": "xrange(0, n, mini_batch_size)",
+          "fix": "range(0, n, mini_batch_size)",
+          "category": "xrange"
+        },
+        {
+          "line_before": 167,
+          "construct": "print \"Epoch %s training complete\" % j",
+          "fix": "print(\"Epoch %s training complete\" % j)",
+          "category": "print_statement"
+        },
+        {
+          "line_before": 171,
+          "construct": "print \"Cost on training data: {}\".format(cost)",
+          "fix": "print(\"Cost on training data: {}\".format(cost))",
+          "category": "print_statement"
+        },
+        {
+          "line_before": 175,
+          "construct": "print \"Accuracy on training data: {} / {}\".format(accuracy, n)",
+          "fix": "print(\"Accuracy on training data: {} / {}\".format(accuracy, n))",
+          "category": "print_statement"
+        },
+        {
+          "line_before": 180,
+          "construct": "print \"Cost on evaluation data: {}\".format(cost)",
+          "fix": "print(\"Cost on evaluation data: {}\".format(cost))",
+          "category": "print_statement"
+        },
+        {
+          "line_before": 184,
+          "construct": "print \"Accuracy on evaluation data: {} / {}\".format(...)",
+          "fix": "print(\"Accuracy on evaluation data: {} / {}\".format(...))",
+          "category": "print_statement"
+        },
+        {
+          "line_before": 186,
+          "construct": "print (bare — emits blank line)",
+          "fix": "print()",
+          "category": "print_statement"
+        },
+        {
+          "line_before": 204,
+          "construct": "eta/len(mini_batch) (weights update)",
+          "fix": "no code change — Python 3 / is true division by default",
+          "category": "integer_division",
+          "note": "Intentional behaviour change: Python 3 produces float result. Documented in task spec."
+        },
+        {
+          "line_before": 206,
+          "construct": "eta/len(mini_batch) (biases update)",
+          "fix": "no code change — Python 3 / is true division by default",
+          "category": "integer_division",
+          "note": "Intentional behaviour change: Python 3 produces float result. Documented in task spec."
+        },
+        {
+          "line_before": 235,
+          "construct": "xrange(2, self.num_layers)",
+          "fix": "range(2, self.num_layers)",
+          "category": "xrange"
+        }
+      ]
+    }
+  },
+  "totals": {
+    "deprecated_before": 23,
+    "deprecated_after": 0,
+    "total_fixes": 23
+  },
+  "test_results": {
+    "before": {
+      "runtime": "Python 3.12.14 (Docker python:3.12)",
+      "source": "legacy-target/src",
+      "passed": 0,
+      "failed": 29,
+      "xfailed": 2,
+      "total": 31,
+      "failure_categories": {
+        "SyntaxError_print_statement": {
+          "files": ["network.py", "network2.py"],
+          "tests_affected": 19
+        },
+        "ModuleNotFoundError_cPickle": {
+          "files": ["mnist_loader.py"],
+          "tests_affected": 10
+        }
+      }
+    },
+    "after": {
+      "runtime": "Python 3.12.14 (Docker python:3.12)",
+      "source": "modernized/src",
+      "passed": 29,
+      "failed": 0,
+      "xfailed": 2,
+      "total": 31,
+      "warnings": 0,
+      "notes": "2 xfailed tests are test_update_mini_batch_int_eta (x2) — expected to fail on Python 3; golden captured Py2 floor-division semantics"
+    }
+  }
+}
