@@ -1,0 +1,38 @@
+{
+  "test_len": 10000, 
+  "training_x0_first5": [
+    0.0, 
+    0.0, 
+    0.0, 
+    0.0, 
+    0.0
+  ], 
+  "test_x0_shape": [
+    784, 
+    1
+  ], 
+  "validation_len": 10000, 
+  "training_y0_shape": [
+    10, 
+    1
+  ], 
+  "training_y0_first5": [
+    0.0, 
+    0.0, 
+    0.0, 
+    0.0, 
+    0.0
+  ], 
+  "training_x0_shape": [
+    784, 
+    1
+  ], 
+  "test_y0_dtype": "int64", 
+  "validation_y0_dtype": "int64", 
+  "second_iter_matches": true, 
+  "training_len": 50000, 
+  "validation_x0_shape": [
+    784, 
+    1
+  ]
+}
