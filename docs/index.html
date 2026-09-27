@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LegacyLift — Safe, verified legacy code modernization</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    color: #1f2328;
+    background: #ffffff;
+    padding: 0 1rem 3rem;
+  }
+
+  .container {
+    max-width: 760px;
+    margin: 0 auto;
+  }
+
+  /* ── Header ─────────────────────────────────────────── */
+  header {
+    border-bottom: 2px solid #e5e7eb;
+    padding: 2.5rem 0 1.5rem;
+    margin-bottom: 2.5rem;
+  }
+  header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    color: #1f2328;
+  }
+  header h1 span { color: #3b82d4; }
+  header p {
+    margin-top: 0.4rem;
+    color: #57606a;
+    font-size: 1rem;
+  }
+
+  /* ── Section titles ──────────────────────────────────── */
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1f2328;
+    margin-bottom: 1rem;
+    padding-bottom: 0.35rem;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  section { margin-bottom: 2.5rem; }
+
+  /* ── Pipeline flow ───────────────────────────────────── */
+  .pipeline {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0;
+    margin: 0.5rem 0;
+  }
+  .stage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 110px;
+    flex: 1;
+  }
+  .stage-box {
+    background: #f7f8fa;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    padding: 0.6rem 0.8rem;
+    text-align: center;
+    width: 100%;
+  }
+  .stage-num {
+    font-size: 0.7rem;
+    color: #57606a;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .stage-name {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: #1f2328;
+  }
+  .stage-desc {
+    font-size: 0.72rem;
+    color: #57606a;
+    margin-top: 0.15rem;
+  }
+  .arrow {
+    font-size: 1.2rem;
+    color: #c8ccd0;
+    padding: 0 0.3rem;
+    flex: 0 0 auto;
+  }
+  @media (max-width: 540px) {
+    .pipeline { flex-direction: column; align-items: stretch; }
+    .arrow { transform: rotate(90deg); align-self: center; }
+    .stage { min-width: auto; }
+  }
+
+  /* ── Project info box ────────────────────────────────── */
+  .info-box {
+    background: #f7f8fa;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    padding: 1rem 1.2rem;
+  }
+  .info-box p { color: #1f2328; }
+  .info-box .label {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #57606a;
+    font-weight: 600;
+    margin-top: 0.6rem;
+  }
+  .info-box .label:first-child { margin-top: 0; }
+
+  /* ── Tables ──────────────────────────────────────────── */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+  }
+  th {
+    background: #f7f8fa;
+    border: 1px solid #e5e7eb;
+    padding: 0.5rem 0.75rem;
+    text-align: left;
+    font-weight: 600;
+    color: #57606a;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  td {
+    border: 1px solid #e5e7eb;
+    padding: 0.5rem 0.75rem;
+    vertical-align: top;
+  }
+  tr:nth-child(even) td { background: #fafbfc; }
+  .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .good { color: #1a7f37; font-weight: 700; }
+  .bad  { color: #d1242f; font-weight: 700; }
+  .note-cell { color: #57606a; font-size: 0.82rem; }
+  tfoot td { font-weight: 700; background: #f0f4ff; border-top: 2px solid #c8d8f8; }
+
+  /* ── Result badges ───────────────────────────────────── */
+  .results-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+  }
+  .result-card {
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    background: #f7f8fa;
+    text-align: center;
+  }
+  .result-card .big { font-size: 2rem; font-weight: 700; line-height: 1.1; }
+  .result-card .lbl { font-size: 0.78rem; color: #57606a; margin-top: 0.2rem; }
+  .result-card.pass .big { color: #1a7f37; }
+  .result-card.fail .big { color: #d1242f; }
+  .result-card.xfail .big { color: #7c5cd8; }
+  .result-card.neutral .big { color: #3b82d4; }
+
+  /* ── Silent bugs ─────────────────────────────────────── */
+  .bug-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+  }
+  .bug-card {
+    border: 1px solid #e5e7eb;
+    border-left: 3px solid #d1242f;
+    border-radius: 0 6px 6px 0;
+    padding: 0.75rem 1rem;
+    background: #fff8f8;
+  }
+  .bug-card h3 { font-size: 0.88rem; font-weight: 700; margin-bottom: 0.35rem; }
+  .bug-card p  { font-size: 0.82rem; color: #57606a; }
+  code {
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: 0.82em;
+    background: #f0f2f5;
+    border: 1px solid #e5e7eb;
+    border-radius: 3px;
+    padding: 0.1em 0.35em;
+  }
+
+  /* ── Decision box ────────────────────────────────────── */
+  .decision-box {
+    border: 1px solid #d8b4fe;
+    border-left: 4px solid #7c5cd8;
+    border-radius: 0 6px 6px 0;
+    background: #faf5ff;
+    padding: 1rem 1.2rem;
+  }
+  .decision-box h3 { font-size: 0.95rem; font-weight: 700; color: #5b21b6; margin-bottom: 0.5rem; }
+  .decision-box p  { font-size: 0.875rem; color: #3b1d6e; margin-bottom: 0.4rem; }
+  .decision-box p:last-child { margin-bottom: 0; }
+
+  /* ── Out-of-scope box ────────────────────────────────── */
+  .oos-box {
+    border: 1px solid #e5e7eb;
+    border-left: 4px solid #57606a;
+    border-radius: 0 6px 6px 0;
+    background: #f7f8fa;
+    padding: 1rem 1.2rem;
+  }
+  .oos-box h3 { font-size: 0.95rem; font-weight: 700; color: #57606a; margin-bottom: 0.5rem; }
+  .oos-box p  { font-size: 0.875rem; color: #57606a; }
+
+  /* ── Links section ───────────────────────────────────── */
+  .links-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+  .link-item {
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    padding: 0.5rem 0.75rem;
+    background: #f7f8fa;
+    font-size: 0.875rem;
+  }
+  .link-item .link-type {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #57606a;
+    font-weight: 600;
+  }
+  .link-item a { color: #3b82d4; text-decoration: none; }
+  .link-item a:hover { text-decoration: underline; }
+
+  /* ── Footer ──────────────────────────────────────────── */
+  footer {
+    border-top: 1px solid #e5e7eb;
+    margin-top: 3rem;
+    padding-top: 1rem;
+    text-align: center;
+    font-size: 0.75rem;
+    color: #57606a;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- ── Header ───────────────────────────────────────── -->
+  <header>
+    <h1><span>Legacy</span>Lift</h1>
+    <p>Safe, verified legacy code modernization with IBM Bob&nbsp;2.0</p>
+  </header>
+
+  <!-- ── 1. Pipeline ──────────────────────────────────── -->
+  <section>
+    <h2>The 5-Stage Pipeline</h2>
+    <div class="pipeline">
+      <div class="stage">
+        <div class="stage-box">
+          <div class="stage-num">Stage 1</div>
+          <div class="stage-name">Analyze</div>
+          <div class="stage-desc">Catalog deprecated<br>constructs per file</div>
+        </div>
+      </div>
+      <div class="arrow">›</div>
+      <div class="stage">
+        <div class="stage-box">
+          <div class="stage-num">Stage 2</div>
+          <div class="stage-name">Protect</div>
+          <div class="stage-desc">Write characterization<br>tests, capture golden</div>
+        </div>
+      </div>
+      <div class="arrow">›</div>
+      <div class="stage">
+        <div class="stage-box">
+          <div class="stage-num">Stage 3</div>
+          <div class="stage-name">Modernize</div>
+          <div class="stage-desc">Apply fixes,<br>document decisions</div>
+        </div>
+      </div>
+      <div class="arrow">›</div>
+      <div class="stage">
+        <div class="stage-box">
+          <div class="stage-num">Stage 4</div>
+          <div class="stage-name">Verify</div>
+          <div class="stage-desc">Run tests on Python 3;<br>all must pass</div>
+        </div>
+      </div>
+      <div class="arrow">›</div>
+      <div class="stage">
+        <div class="stage-box">
+          <div class="stage-num">Stage 5</div>
+          <div class="stage-name">Report</div>
+          <div class="stage-desc">Consolidated<br>results page</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 2. Target project ─────────────────────────────── -->
+  <section>
+    <h2>Target Project</h2>
+    <div class="info-box">
+      <div class="label">Project</div>
+      <p>Michael Nielsen — <em>Neural Networks and Deep Learning</em></p>
+      <div class="label">Source language</div>
+      <p>Python 2.7 (Python 2.6/2.7 original runtime)</p>
+      <div class="label">License</div>
+      <p>MIT</p>
+      <div class="label">Files in scope</div>
+      <p><code>mnist_loader.py</code>, <code>network.py</code>, <code>network2.py</code></p>
+      <div class="label">File excluded</div>
+      <p><code>network3.py</code> — hard Theano dependency (out of scope; see below)</p>
+    </div>
+  </section>
+
+  <!-- ── 3. Before / After ─────────────────────────────── -->
+  <section>
+    <h2>Before / After — Deprecated Usage Counts</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>File</th>
+          <th class="num">Deprecated (before)</th>
+          <th class="num">Deprecated (after)</th>
+          <th class="num">Δ</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>mnist_loader.py</code></td>
+          <td class="num bad">5</td>
+          <td class="num good">0</td>
+          <td class="num">−5</td>
+        </tr>
+        <tr>
+          <td><code>network.py</code></td>
+          <td class="num bad">7</td>
+          <td class="num good">0</td>
+          <td class="num">−7</td>
+        </tr>
+        <tr>
+          <td><code>network2.py</code></td>
+          <td class="num bad">11</td>
+          <td class="num good">0</td>
+          <td class="num">−11</td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr>
+          <td>Total</td>
+          <td class="num bad">23</td>
+          <td class="num good">0</td>
+          <td class="num">−23</td>
+        </tr>
+      </tfoot>
+    </table>
+
+    <h2 style="margin-top:1.75rem;">Test Results</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Scenario</th>
+          <th class="num">Passed</th>
+          <th class="num">Failed</th>
+          <th class="num">XFAIL</th>
+          <th class="num">Collected</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Characterization tests on Python&nbsp;2.7 (legacy&nbsp;source)</td>
+          <td class="num good">31</td>
+          <td class="num">0</td>
+          <td class="num">—</td>
+          <td class="num">31</td>
+        </tr>
+        <tr>
+          <td>Legacy source on Python&nbsp;3.12 (pre-modernization)</td>
+          <td class="num bad">0</td>
+          <td class="num bad">29</td>
+          <td class="num">2</td>
+          <td class="num">31</td>
+        </tr>
+        <tr>
+          <td>Modernized source on Python&nbsp;3.12</td>
+          <td class="num good">29</td>
+          <td class="num good">0</td>
+          <td class="num note-cell">2 <span style="font-weight:400">(documented intentional)</span></td>
+          <td class="num">31</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div style="margin-top:1rem;">
+      <div class="results-grid">
+        <div class="result-card neutral">
+          <div class="big">31</div>
+          <div class="lbl">Characterization tests<br>written (0 → 31)</div>
+        </div>
+        <div class="result-card pass">
+          <div class="big">29</div>
+          <div class="lbl">Tests passing on<br>Python 3.12 modernized</div>
+        </div>
+        <div class="result-card xfail">
+          <div class="big">2</div>
+          <div class="lbl">Intentional XFAIL<br>(integer-division)</div>
+        </div>
+        <div class="result-card fail">
+          <div class="big">0</div>
+          <div class="lbl">Unexpected failures<br>after modernization</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 4. Silent bugs ────────────────────────────────── -->
+  <section>
+    <h2>Silent Bugs Caught — Why Find-and-Replace Fails</h2>
+    <p style="margin-bottom:0.9rem; color:#57606a; font-size:0.875rem;">
+      These three constructs are <strong>syntactically valid in both Python 2 and Python 3</strong>,
+      so a naive text substitution would not touch them — yet each silently changes program behavior.
+    </p>
+    <div class="bug-cards">
+      <div class="bug-card">
+        <h3>zip() returns an iterator</h3>
+        <p>
+          In Python 2, <code>zip()</code> returns a <strong>list</strong>.
+          In Python 3 it returns a lazy <strong>iterator</strong> — consumed once.
+          Code that calls <code>len()</code> on the result or indexes into it
+          raises <code>TypeError</code> at runtime, not at import time.
+          A search-and-replace on <code>zip(</code> would blindly wrap every
+          usage, missing the cases where the iterator is only iterated once
+          (which are safe) and breaking only the ones that re-use the result.
+          LegacyLift identified all three unsafe call sites (ML-3, ML-4, ML-5)
+          and added <code>list()</code> wrappers precisely.
+        </p>
+      </div>
+      <div class="bug-card">
+        <h3>Bare <code>print</code> statement</h3>
+        <p>
+          A bare <code>print</code> with no argument is legal in Python 3 —
+          it parses as an expression referencing the built-in function
+          and does <em>nothing</em>. In Python 2 it emits a blank line.
+          Find-and-replace targeting <code>print&nbsp;"…"</code> patterns
+          would never touch a bare <code>print</code>, silently suppressing
+          blank-line output in Python 3.
+          Issue N2-8 catches and fixes this with <code>print()</code>.
+        </p>
+      </div>
+      <div class="bug-card">
+        <h3>Integer division <code>3&nbsp;/&nbsp;2</code></h3>
+        <p>
+          <code>eta&nbsp;/&nbsp;len(mini_batch)</code> is valid syntax in
+          both Python versions. In Python 2, <code>3/2&nbsp;==&nbsp;1</code>
+          (floor division); in Python 3, <code>3/2&nbsp;==&nbsp;1.5</code>
+          (true division). A find-and-replace can't know whether the
+          surrounding context has integer operands, so it cannot safely
+          add a <code>float()</code> cast everywhere. LegacyLift analyzed
+          each occurrence and documented the change as intentional — the
+          golden files capture both behaviors and two <code>xfail</code>
+          tests pin the decision.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 5. Integer-division decision ──────────────────── -->
+  <section>
+    <h2>Integer-Division Decision</h2>
+    <div class="decision-box">
+      <h3>Detected · Documented · Intentionally fixed</h3>
+      <p>
+        <code>eta / len(mini_batch)</code> appears in four places across
+        <code>network.py</code> (lines&nbsp;80, 82) and <code>network2.py</code>
+        (lines&nbsp;204, 206). When <code>eta</code> is an integer and
+        <code>len(mini_batch)</code> is&nbsp;2, Python&nbsp;2 computes
+        <strong>1</strong> (floor division) while Python&nbsp;3 computes
+        <strong>1.5</strong> (true division).
+      </p>
+      <p>
+        The task specification designates this as an <strong>intentional
+        behaviour change</strong>: Python 3's true-division semantics are
+        numerically correct for a gradient-descent learning rate update.
+        No <code>float()</code> cast was added — the Python&nbsp;3 default
+        is already correct. The legacy floor-division result is preserved
+        in two golden files and documented with
+        <code>@pytest.mark.xfail(sys.version_info&nbsp;&gt;=&nbsp;(3,), strict=True)</code>,
+        which records the divergence on every future run without hiding it.
+      </p>
+      <p>
+        The <code>float</code>-eta variants of the same tests
+        (<code>test_update_mini_batch_float_eta</code>) pass identically on
+        both Python versions because floating-point division was always
+        true division in Python&nbsp;2 when either operand was a float.
+      </p>
+    </div>
+  </section>
+
+  <!-- ── 6. network3.py out of scope ───────────────────── -->
+  <section>
+    <h2>network3.py — Out of Scope</h2>
+    <div class="oos-box">
+      <h3>Hard dependency on Theano (archived 2017, last release 2020)</h3>
+      <p>
+        <code>network3.py</code> has a hard dependency on Theano, a library
+        that was archived in 2017 and does not support Python&nbsp;3.8+.
+        Migrating this file would require a complete backend rewrite
+        (e.g., to PyTorch or TensorFlow), which is outside the scope of a
+        syntactic/semantic upgrade. All other issues in the file
+        (<code>cPickle</code>, <code>xrange</code>, print statements) are
+        moot given the Theano blocker. The file is excluded from the
+        deprecated-usage counts and test suite.
+      </p>
+    </div>
+  </section>
+
+  <!-- ── 7. Links ──────────────────────────────────────── -->
+  <section>
+    <h2>Reports &amp; Source Files</h2>
+    <div class="links-grid">
+      <div class="link-item">
+        <div class="link-type">Report — Analyze</div>
+        <a href="../reports/analysis.json">reports/analysis.json</a>
+      </div>
+      <div class="link-item">
+        <div class="link-type">Report — Protect</div>
+        <a href="../reports/protect.md">reports/protect.md</a>
+      </div>
+      <div class="link-item">
+        <div class="link-type">Report — Modernize (JSON)</div>
+        <a href="../reports/modernize.json">reports/modernize.json</a>
+      </div>
+      <div class="link-item">
+        <div class="link-type">Report — Modernize (narrative)</div>
+        <a href="../reports/modernize.md">reports/modernize.md</a>
+      </div>
+      <div class="link-item">
+        <div class="link-type">Report — Verify</div>
+        <a href="../reports/verify.md">reports/verify.md</a>
+      </div>
+      <div class="link-item">
+        <div class="link-type">Test suite</div>
+        <a href="../tests/test_characterization.py">tests/test_characterization.py</a>
+      </div>
+      <div class="link-item">
+        <div class="link-type">Golden files</div>
+        <a href="../tests/golden/">tests/golden/</a>
+      </div>
+      <div class="link-item">
+        <div class="link-type">Modernized source</div>
+        <a href="../modernized/src/">modernized/src/</a>
+      </div>
+    </div>
+  </section>
+
+</div><!-- .container -->
+
+<footer>
+  <div class="container">
+    Made with IBM Bob
+  </div>
+</footer>
+</body>
+</html>
