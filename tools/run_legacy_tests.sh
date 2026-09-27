@@ -35,7 +35,6 @@ echo ""
 # Run pytest from legacy-target/src/ so that mnist_loader.load_data() can
 # resolve its hardcoded relative path '../data/mnist.pkl.gz'.
 # LEGACYLIFT_SRC points to the legacy source directory (already the CWD).
-newgrp docker 2>/dev/null || true
 docker run --rm \
   -v "${REPO_ROOT}":/app \
   -w /app/legacy-target/src \
