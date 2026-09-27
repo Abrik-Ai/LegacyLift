@@ -1,0 +1,200 @@
+{
+  "legacylift_stage": "analyze",
+  "target_directory": "legacy-target/src/",
+  "original_runtime": "Python 2.6/2.7",
+  "files": {
+    "mnist_loader.py": {
+      "risk": "medium",
+      "deprecated_count": 5,
+      "issues": [
+        {
+          "id": "ML-1",
+          "line": 13,
+          "kind": "removed_module",
+          "construct": "import cPickle",
+          "replacement": "import pickle"
+        },
+        {
+          "id": "ML-2",
+          "line": 43,
+          "kind": "removed_module_usage",
+          "construct": "cPickle.load(f)",
+          "replacement": "pickle.load(f, encoding='latin1')"
+        },
+        {
+          "id": "ML-3",
+          "line": 71,
+          "kind": "zip_returns_iterator",
+          "construct": "zip(training_inputs, training_results)",
+          "replacement": "list(zip(training_inputs, training_results))"
+        },
+        {
+          "id": "ML-4",
+          "line": 73,
+          "kind": "zip_returns_iterator",
+          "construct": "zip(validation_inputs, va_d[1])",
+          "replacement": "list(zip(validation_inputs, va_d[1]))"
+        },
+        {
+          "id": "ML-5",
+          "line": 75,
+          "kind": "zip_returns_iterator",
+          "construct": "zip(test_inputs, te_d[1])",
+          "replacement": "list(zip(test_inputs, te_d[1]))"
+        }
+      ]
+    },
+    "network.py": {
+      "risk": "medium",
+      "deprecated_count": 7,
+      "issues": [
+        {
+          "id": "NW-1",
+          "line": 56,
+          "kind": "xrange",
+          "construct": "xrange(epochs)",
+          "replacement": "range(epochs)"
+        },
+        {
+          "id": "NW-2",
+          "line": 60,
+          "kind": "xrange",
+          "construct": "xrange(0, n, mini_batch_size)",
+          "replacement": "range(0, n, mini_batch_size)"
+        },
+        {
+          "id": "NW-3",
+          "line": 64,
+          "kind": "print_statement",
+          "construct": "print \"Epoch {0}: …\"",
+          "replacement": "print(\"Epoch {0}: …\".format(…))"
+        },
+        {
+          "id": "NW-4",
+          "line": 67,
+          "kind": "print_statement",
+          "construct": "print \"Epoch {0} complete\".format(j)",
+          "replacement": "print(\"Epoch {0} complete\".format(j))"
+        },
+        {
+          "id": "NW-5",
+          "line": 80,
+          "kind": "integer_division_hazard",
+          "construct": "eta/len(mini_batch) [weights]",
+          "replacement": "ensure eta is float, or eta / float(len(mini_batch))"
+        },
+        {
+          "id": "NW-6",
+          "line": 82,
+          "kind": "integer_division_hazard",
+          "construct": "eta/len(mini_batch) [biases]",
+          "replacement": "ensure eta is float, or eta / float(len(mini_batch))"
+        },
+        {
+          "id": "NW-7",
+          "line": 112,
+          "kind": "xrange",
+          "construct": "xrange(2, self.num_layers)",
+          "replacement": "range(2, self.num_layers)"
+        }
+      ]
+    },
+    "network2.py": {
+      "risk": "medium",
+      "deprecated_count": 11,
+      "issues": [
+        {
+          "id": "N2-1",
+          "line": 159,
+          "kind": "xrange",
+          "construct": "xrange(epochs)",
+          "replacement": "range(epochs)"
+        },
+        {
+          "id": "N2-2",
+          "line": 163,
+          "kind": "xrange",
+          "construct": "xrange(0, n, mini_batch_size)",
+          "replacement": "range(0, n, mini_batch_size)"
+        },
+        {
+          "id": "N2-3",
+          "line": 167,
+          "kind": "print_statement",
+          "construct": "print \"Epoch %s training complete\" % j",
+          "replacement": "print(\"Epoch %s training complete\" % j)"
+        },
+        {
+          "id": "N2-4",
+          "line": 171,
+          "kind": "print_statement",
+          "construct": "print \"Cost on training data: {}\".format(cost)",
+          "replacement": "print(\"Cost on training data: {}\".format(cost))"
+        },
+        {
+          "id": "N2-5",
+          "line": 175,
+          "kind": "print_statement",
+          "construct": "print \"Accuracy on training data: {} / {}\".format(…)",
+          "replacement": "print(\"Accuracy on training data: {} / {}\".format(…))"
+        },
+        {
+          "id": "N2-6",
+          "line": 180,
+          "kind": "print_statement",
+          "construct": "print \"Cost on evaluation data: {}\".format(cost)",
+          "replacement": "print(\"Cost on evaluation data: {}\".format(cost))"
+        },
+        {
+          "id": "N2-7",
+          "line": 184,
+          "kind": "print_statement",
+          "construct": "print \"Accuracy on evaluation data: {} / {}\".format(…)",
+          "replacement": "print(\"Accuracy on evaluation data: {} / {}\".format(…))"
+        },
+        {
+          "id": "N2-8",
+          "line": 186,
+          "kind": "bare_print_statement",
+          "construct": "print",
+          "replacement": "print()",
+          "note": "Silent semantic break: bare print is a no-op expression in Python 3, silently suppressing the blank line"
+        },
+        {
+          "id": "N2-9",
+          "line": 204,
+          "kind": "integer_division_hazard",
+          "construct": "eta/len(mini_batch) [weights]",
+          "replacement": "ensure eta is float, or eta / float(len(mini_batch))"
+        },
+        {
+          "id": "N2-10",
+          "line": 206,
+          "kind": "integer_division_hazard",
+          "construct": "eta/len(mini_batch) [biases]",
+          "replacement": "ensure eta is float, or eta / float(len(mini_batch))"
+        },
+        {
+          "id": "N2-11",
+          "line": 235,
+          "kind": "xrange",
+          "construct": "xrange(2, self.num_layers)",
+          "replacement": "range(2, self.num_layers)"
+        }
+      ]
+    },
+    "network3.py": {
+      "risk": "out_of_scope",
+      "deprecated_count": null,
+      "reason": "Hard dependency on Theano, a discontinued library (archived 2017, last release 2020). Theano does not support Python 3.8+. Migration requires a full backend rewrite (e.g. PyTorch or TensorFlow), which is outside the scope of syntactic/semantic upgrade. Additional issues (cPickle, xrange, print statements) are moot given the Theano blocker."
+    }
+  },
+  "summary": {
+    "total_deprecated_in_scope": 23,
+    "per_file": {
+      "mnist_loader.py": 5,
+      "network.py": 7,
+      "network2.py": 11
+    }
+  }
+}
