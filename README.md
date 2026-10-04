@@ -9,7 +9,7 @@ characterization tests or documented as an intentional decision.
 **Target project:** Michael Nielsen's *Neural Networks and Deep Learning*
 (Python 2.7, MIT) — `mnist_loader.py`, `network.py`, `network2.py`.
 
-📄 **[View the full report →](docs/index.html)**
+📄 **[View the full report →](https://abrik-ai.github.io/LegacyLift/)**  ·  📊 **[Slides](presentation/LegacyLift_Slides.pdf)**
 
 ---
 
@@ -62,13 +62,13 @@ bash tools/run_capture.sh
 
 ```bash
 bash tools/run_legacy_tests.sh
-# Expected: 29 passed, 2 xpassed -- exit 0
+# Expected: 31 passed -- exit 0
 ```
 
 ### Stage 3 — Modernize
 
 The modernized source is in `modernized/src/`. To re-run the modernization
-prompt, open `prompts/02-modernize.md` with IBM Bob.
+prompt, open `prompts/03-modernize-verify.md` with IBM Bob.
 
 ### Stage 4 — Verify
 
@@ -119,6 +119,18 @@ prompts/                    IBM Bob prompt files for each stage
 
 ---
 
+## Credits
+
+- Legacy code in `legacy-target/` (and the modernized version in `modernized/`) is based on
+  Michael Nielsen's *Neural Networks and Deep Learning* code, MIT License
+  (notice in `legacy-target/README.md`).
+- Code, tests and reports were generated with **IBM Bob 2.0**; all prompts are in `prompts/`
+  and Bob session screenshots are in `screenshots/`.
+- Planning, prompts and documentation drafts were assisted by Claude.
+- Built for the IBM Bob 2.0 Hackathon on lablab.ai (September 2026).
+
 ## License
 
-MIT — same as the target project.
+MIT. See `LICENSE`. Code derived from Nielsen's project keeps its original MIT notice.
+
+![LegacyLift](presentation/LegacyLift_Cover.png)
