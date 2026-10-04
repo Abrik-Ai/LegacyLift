@@ -22,7 +22,7 @@ characterization tests or documented as an intentional decision.
 | 1 | **Analyze** | Catalog all deprecated constructs per file and assign risk levels. |
 | 2 | **Protect** | Write characterization (golden-master) tests against the live Python 2.7 source. Lock the baseline. |
 | 3 | **Modernize** | Apply the fixes identified in the analysis. Document intentional semantic changes. |
-| 4 | **Verify** | Run the full test suite against the modernized code on Python 3.12. All tests must pass. |
+| 4 | **Verify** | Run the full test suite against the modernized code on Python 3.12. Every test must pass or be a documented intentional change. |
 | 5 | **Report** | Generate a consolidated HTML summary page (`docs/index.html`). |
 
 ---
@@ -74,12 +74,12 @@ prompt, open `prompts/03-modernize-verify.md` with IBM Bob.
 
 ### Stage 4 — Verify
 
-**Run the characterization tests against the modernized source on Python 3.12**
-(Docker):
+**Run the characterization tests against the modernized source on Python 3.12** (Docker).
+Every test must pass or be a documented intentional change.
 
 ```bash
 bash tools/run_modern_tests.sh
-Every test must pass or be a documented intentional change.
+# Expected: 29 passed, 2 xfailed -- exit 0
 ```
 
 Or locally (requires Python 3 + current numpy + pytest):
