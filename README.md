@@ -1,5 +1,7 @@
 # LegacyLift
 
+![LegacyLift](presentation/LegacyLift_Cover.png)
+
 **Safe, verified legacy code modernization with IBM Bob 2.0.**
 
 LegacyLift is a 5-stage pipeline that upgrades legacy Python 2.7 code to
@@ -77,7 +79,7 @@ prompt, open `prompts/03-modernize-verify.md` with IBM Bob.
 
 ```bash
 bash tools/run_modern_tests.sh
-# Expected: 29 passed, 2 xfailed -- exit 0
+Every test must pass or be a documented intentional change.
 ```
 
 Or locally (requires Python 3 + current numpy + pytest):
@@ -88,8 +90,7 @@ LEGACYLIFT_SRC=modernized/src pytest tests/test_characterization.py -v
 
 ### Stage 5 — Report
 
-The report page is at [`docs/index.html`](docs/index.html) — viewable locally
-or via GitHub Pages.
+The report page is live at https://abrik-ai.github.io/LegacyLift/ (source: `docs/index.html`).
 
 ---
 
@@ -132,5 +133,3 @@ prompts/                    IBM Bob prompt files for each stage
 ## License
 
 MIT. See `LICENSE`. Code derived from Nielsen's project keeps its original MIT notice.
-
-![LegacyLift](presentation/LegacyLift_Cover.png)
